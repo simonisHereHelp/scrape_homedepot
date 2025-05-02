@@ -2,12 +2,14 @@
 
 **Keywords:** web scrape, Home Depot, DIYer, Markdown, LLM, Llama3, content extraction, Docusaurus
 
+
 ## 🧰 Purpose
 
-This project scrapes and processes DIY article content from [HomeDepot.com](https://www.homedepot.com/c/diy_projects_and_ideas) to support **local LLM (Large Language Model) fine-tuning and retrieval augmentation**.
+This tool scrapes and converts articles from **[HomeDepot.com’s DIY Projects & Ideas section](https://www.homedepot.com/c/diy_projects_and_ideas/)** into structured Markdown files for use in **local LLM training, retrieval-augmented generation (RAG), or searchable knowledge bases.**
 
-The goal is to enable a lightweight, locally run model (e.g., **LLaMa3-8B**) to understand and respond to natural language DIY queries by referencing grounded, image-supported guides and real product context.
 
+
+---
 ## 🎯 Use Case: LLM Customization for DIY Assistants
 
 The curated content is intended for:
