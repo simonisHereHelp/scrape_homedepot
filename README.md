@@ -7,7 +7,7 @@
 
 This tool scrapes and converts articles from **[HomeDepot.com’s DIY Projects & Ideas section](https://www.homedepot.com/c/diy_projects_and_ideas/)** into structured Markdown files for use in **local LLM training, retrieval-augmented generation (RAG), or searchable knowledge bases.**
 
-
+![alt text](image.png)
 
 ---
 ## 🎯 Use Case: LLM Customization for DIY Assistants
