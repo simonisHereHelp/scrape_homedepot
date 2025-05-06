@@ -1,0 +1,23 @@
+# Ignore all models except explicitly included folders
+/models/
+/models/*
+
+# Allow training data and source documents
+!train_data1.jsonl
+!diy_articles/**
+
+# Ignore temporary files and caches
+__pycache__/
+*.pyc
+*.pkl
+*.log
+*.tmp
+
+# Ignore output artifacts
+*.ckpt
+*.safetensors
+*.pt
+*.pth
+
+# VS Code settings
+.vscode/

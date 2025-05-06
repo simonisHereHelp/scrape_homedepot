@@ -78,4 +78,8 @@ Although the output is structured and relatively clean, you may still need to:
 
 ---
 
-Let me know if you want this in a downloadable PDF or included in the Docusaurus landing page as a contributor guide.
+## Domain Adaption: 1M tokens (4mb text data)
+
+-1 token = 4 byte (text data)
+-Effective Domain adaption requires >= **1M tokens** (4MB text-md data)
+Meta LLaMA 2 paper: notes on continued pretraining and domain alignment use 100M–1B+ tokens, but small-scale adaptation begins around 1M tokens.
