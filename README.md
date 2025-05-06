@@ -3,6 +3,8 @@
 **Keywords:** web scrape, Home Depot, DIYer, Markdown, LLM, Llama3, content extraction, Docusaurus
 
 
+
+
 ## 🧰 Purpose
 
 This tool scrapes and converts articles from **[HomeDepot.com’s DIY Projects & Ideas section](https://www.homedepot.com/c/diy_projects_and_ideas/)** into structured Markdown files for use in **local LLM training, retrieval-augmented generation (RAG), or searchable knowledge bases.**
@@ -83,3 +85,7 @@ Although the output is structured and relatively clean, you may still need to:
 -1 token = 4 byte (text data)
 -Effective Domain adaption requires >= **1M tokens** (4MB text-md data)
 Meta LLaMA 2 paper: notes on continued pretraining and domain alignment use 100M–1B+ tokens, but small-scale adaptation begins around 1M tokens.
+
+
+## README-LLM.md (training) 
+![alt text](image-2.png)
