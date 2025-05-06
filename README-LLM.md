@@ -27,6 +27,16 @@ snapshot_download(
 
 ## training
 
-🧪 hf_train1.py (Pilot Phase) or hf_train2.py (continue)
+🧪 hf_train_parquet.py and hf_lora_inference.py
 
-![alt text](image-1.png)
+--hf_download.py: downlaod the Llama model
+--datasetn HF: scooterman/guanaco-llama3-1k
+![alt text](image-3.png)
+
+## Deployment (FastAPI)
+
+uvicorn hf_lora_api:app --host 0.0.0.0 --port 8000
+
+curl -X POST http://localhost:8000/inference \
+     -H "Content-Type: application/json" \
+     -d '{"prompt": "What games would you recommend if I liked Undertale?"}'
