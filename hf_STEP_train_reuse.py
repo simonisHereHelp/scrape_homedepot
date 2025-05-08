@@ -1,0 +1,115 @@
+import os
+import json
+import glob
+import torch
+from datasets import Dataset
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    BitsAndBytesConfig,
+    TrainingArguments,
+    TrainerCallback
+)
+from peft import LoraConfig, get_peft_model, TaskType
+from trl import SFTTrainer
+
+# === CUDA memory ===
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
+# === Paths ===
+data_path = "dataset/STEP_train.jsonl"
+base_model_path = "models/llama3-STEP3b3"
+
+# === Auto-version output directory ===
+existing = sorted(glob.glob(base_model_path + "-v*"))
+version = len(existing) + 1
+output_path = f"{base_model_path}-v{version}"
+
+# === CUDA Check ===
+device_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU"
+print(f"✅ CUDA available: {torch.cuda.is_available()} | Using device: {device_name}")
+print(f"📁 Output directory will be: {output_path}")
+
+# === Load Training Set ===
+print("📦 Loading dataset from:", data_path)
+with open(data_path, "r", encoding="utf-8") as f:
+    raw_entries = [json.loads(line) for line in f]
+
+records = []
+for ex in raw_entries:
+    records.append({"prompt": ex["prompt"], "completion": ex["completion"]})
+
+train_dataset = Dataset.from_list(records)
+print("✅ Loaded training set with", len(train_dataset), "samples")
+
+# === Load Tokenizer & Model ===
+tokenizer = AutoTokenizer.from_pretrained(base_model_path)
+tokenizer.pad_token = tokenizer.eos_token
+
+model = AutoModelForCausalLM.from_pretrained(base_model_path)
+
+# === Apply LoRA ===
+lora_config = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+    lora_dropout=0.05,
+    bias="none",
+    task_type=TaskType.CAUSAL_LM
+)
+model = get_peft_model(model, lora_config)
+
+# === Training Args ===
+training_args = TrainingArguments(
+    output_dir=output_path,
+    num_train_epochs=3,
+    per_device_train_batch_size=1,
+    gradient_accumulation_steps=1,
+    optim="paged_adamw_32bit",
+    save_steps=25,
+    logging_steps=5,
+    learning_rate=2e-4,
+    weight_decay=0.001,
+    bf16=True,
+    max_grad_norm=0.3,
+    max_steps=300,
+    warmup_ratio=0.03,
+    group_by_length=True,
+    report_to="none"
+)
+
+# === Markdown Logger ===
+class CustomLoggingCallback(TrainerCallback):
+    def __init__(self, log_file="training_log.md"):
+        self.log_file = log_file
+        with open(self.log_file, "w", encoding="utf-8") as f:
+            f.write("| Step | Loss |\n|------|------|\n")
+
+    def on_step_end(self, args, state, control, **kwargs):
+        if state.log_history:
+            last_log = state.log_history[-1]
+            step = state.global_step
+            loss = last_log.get("loss", None)
+            if loss is not None:
+                print(f"📊 Step {step}: loss = {loss}")
+                with open(self.log_file, "a", encoding="utf-8") as f:
+                    f.write(f"| {step} | {loss:.4f} |\n")
+
+# === Trainer ===
+trainer = SFTTrainer(
+    model=model,
+    args=training_args,
+    train_dataset=train_dataset,
+    callbacks=[CustomLoggingCallback(log_file=f"{output_path}/training_log.md")]
+)
+
+# === Run Training ===
+print("🚀 Starting training...")
+trainer.train()
+print("✅ Training complete.")
+
+# === Save final model + tokenizer ===
+print("💾 Saving model and tokenizer to:", output_path)
+model.save_pretrained(output_path)
+tokenizer.save_pretrained(output_path)
+print("✅ Save complete.")

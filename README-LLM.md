@@ -40,3 +40,9 @@ uvicorn hf_lora_api:app --host 0.0.0.0 --port 8000
 curl -X POST http://localhost:8000/inference \
      -H "Content-Type: application/json" \
      -d '{"prompt": "What games would you recommend if I liked Undertale?"}'
+
+### test FastAPI
+http://127.0.0.1:8000/docs#
+http://127.0.0.1:8000/docs#/default/run_inference_inference_post
+![alt text](image-4.png)
+![alt text](image-5.png)

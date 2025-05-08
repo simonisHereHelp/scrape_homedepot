@@ -1,5 +1,5 @@
 import torch
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from peft import PeftModel
@@ -39,6 +39,9 @@ class InferenceInput(BaseModel):
 
 @app.post("/inference")
 async def run_inference(input: InferenceInput):
+    print("\n🟡 Awaiting inference prompt...")
+    print(f"📨 Received inference query: {input.prompt}")
+
     inputs = tokenizer(input.prompt, return_tensors="pt").to("cuda")
 
     with torch.no_grad():
@@ -49,10 +52,12 @@ async def run_inference(input: InferenceInput):
             do_sample=True,
             temperature=input.temperature
         )
-        duration = time.time() - start
+        duration = round(time.time() - start, 2)
 
     response = tokenizer.decode(output[0], skip_special_tokens=True)
+    print(f"✅ Response generated in {duration}s:\n{response}\n")
+
     return {
         "response": response,
-        "elapsed_seconds": round(duration, 2)
+        "elapsed_seconds": duration
     }
